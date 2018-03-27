@@ -1,36 +1,50 @@
+import "jquery";
 import "./style.scss";
 
-console.log("Hello Movies");
-var row = document.getElementById("row");
-
-for (let i = 0; i < 4; i++) {
-  var divouter = document.createElement("div");
-  console.log(divouter);
-  //<div outer with class="col-md-4">
-  divouter.setAttribute("class", "col-md-4");
-  var divinner = document.createElement("div");
-  console.log(divinner);
-  divinner.setAttribute("class", "box-bg"); // added class attribute to each box
-  row.appendChild(divouter);
-  divouter.appendChild(divinner);
-
-  //h3 item for box name
-  var h3 = document.createElement("h3");
-  h3.appendChild(document.createTextNode("Box " + (i + 1)));
-  divinner.appendChild(h3);
-
-  //create the first paragraph element
-  var p1 = document.createElement("P");
-  p1.appendChild(document.createTextNode("Lorem ipsum color ..."));
-  divinner.appendChild(p1);
-
-  //create the second paragraph element
-  var p2 = document.createElement("p");
-  p2.appendChild(document.createTextNode("Ut enim ad.."));
-  divinner.appendChild(p2);
-}
-
 $(document).ready(function() {
-  //same as window onload
-  console.log("Princess Town Movies!!!");
+  //create a function to fetch movies
+  function fetchMovies() {
+    $.ajax({
+      url:
+        "https://api.themoviedb.org/3/search/movie?api_key=2434d246ec60c162a86db597467ef4ed&language=en-US&query=princess&include_adult=false&sort_by=created_at&page=1",
+      success: function(payload) {
+        console.log(payload);
+        createMovieBoxes(payload);
+        //call a function that passes an array to it
+        //that function will iterate over the array, creating a div with it
+        //child img tag, the src of which will be the poster_path
+      }
+    });
+  }
+
+  let containerDiv = $("<div>").attr("class", "container");
+
+  let rowDiv = $("<div>").attr("class", "row");
+
+  function createMovieBoxes(movieListPayload) {
+    let movieList = movieListPayload.results;
+
+    for (let i = 0; i < movieList.length; i++) {
+      //<columnDiv outer with class="col-md-4">
+      var columnDiv = $("<div>").attr("class", "card col-md-4");
+      //<columnDiv inner with class="box-bg">
+      var boxDiv = $("<div>").attr("class", "box-bg");
+
+      //img item for each box
+      var img = $("<img>").attr("class", "card-img-top");
+      let movieName =
+        "https://image.tmdb.org/t/p/w500/" + movieList[i].poster_path;
+      img.attr("src", movieName);
+
+      boxDiv.append(img).append($("<h5>").html(movieList[i].title));
+
+      boxDiv.appendTo(columnDiv);
+      columnDiv.appendTo(rowDiv);
+      //columnDiv.append(boxDiv);
+      //rowDiv.append(columnDiv);
+    }
+  }
+  rowDiv.appendTo(containerDiv);
+  containerDiv.appendTo("body");
+  fetchMovies();
 });
